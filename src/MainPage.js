@@ -17,17 +17,26 @@ type LocationCoordinates = {
 };
 
 class MainPageClass extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      timestamp: '',
+      latitude: '',
+      longitude: '',
+    };
+  }
+
   componentDidMount() {
     this.subscription = DeviceEventEmitter.addListener(
       NativeModules.LocationManager.JS_LOCATION_EVENT_NAME,
       (e: LocationCoordinates) => {
         console.log(
-          `Received Coordinates from native side at ${new Date(
-            e.timestamp,
-          ).toTimeString()}: `,
-          e.latitude,
-          e.longitude,
+          `Runing Background Time : ${new Date(e.timestamp).toTimeString()} `,
         );
+        console.log(`Location : ${e.latitude},${e.longitude}`);
+        this.setState({timestamp: new Date(e.timestamp).toTimeString()});
+        this.setState({latitude: e.latitude});
+        this.setState({longitude: e.longitude});
       },
     );
   }
@@ -53,7 +62,7 @@ class MainPageClass extends Component {
 
   render() {
     const {container, button, text} = styles;
-
+    const {timestamp, latitude, longitude} = this.state;
     return (
       <View style={container}>
         <TouchableHighlight style={button} onPress={this.onEnableLocationPress}>
@@ -62,6 +71,11 @@ class MainPageClass extends Component {
         <TouchableHighlight style={button} onPress={this.onCancelLocationPress}>
           <Text style={text}>Cancel Location</Text>
         </TouchableHighlight>
+        <View style={{marginTop: 10}}>
+          <Text style={{fontSize: 20}}>Time : {timestamp}</Text>
+          <Text style={{fontSize: 20}}>Latitude : {latitude}</Text>
+          <Text style={{fontSize: 20}}>Longitude : {longitude}</Text>
+        </View>
       </View>
     );
   }
@@ -77,7 +91,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 50,
   },
   button: {
-    marginVertical: 40,
+    marginVertical: 10,
     backgroundColor: '#2b5082',
     padding: 20,
   },
